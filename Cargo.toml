@@ -10,7 +10,13 @@ name = "exe_runners"
 [dependencies]
 
 # async
-tokio = { version = "1", features = ["sync", "rt", "macros", "rt-multi-thread", "signal"] }
+tokio = { version = "1", features = [
+    "sync",
+    "rt",
+    "macros",
+    "rt-multi-thread",
+    "signal",
+] }
 futures-util = "0.3"
 
 # tracing
@@ -22,6 +28,20 @@ auto_impl = "1"
 dyn-clone = "1.0.17"
 thiserror = "1.0"
 
+# reth-tasks 
+reth-tasks = { git = "https://github.com/paradigmxyz/reth", version = "1.3.4", tag = "v1.3.4", optional = true }
+
 
 [dev-dependencies]
-tokio = { version = "1", features = ["sync", "rt", "rt-multi-thread", "time", "macros"] }
+tokio = { version = "1", features = [
+    "sync",
+    "rt",
+    "rt-multi-thread",
+    "time",
+    "macros",
+] }
+
+
+[features]
+default = ["reth-tasks"]
+reth-tasks = ["dep:reth-tasks"]

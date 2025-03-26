@@ -43,9 +43,9 @@ impl CliRunner {
         ));
 
         if command_res.is_err() {
-            error!(target: "reth::cli", "shutting down due to error");
+            error!(target: "::cli", "shutting down due to error");
         } else {
-            debug!(target: "reth::cli", "shutting down gracefully");
+            debug!(target: "::cli", "shutting down gracefully");
             // after the command has finished or exit signal was received we shutdown the task
             // manager which fires the shutdown signal to all tasks spawned via the task
             // executor and awaiting on tasks spawned with graceful shutdown
@@ -66,7 +66,7 @@ impl CliRunner {
             .unwrap();
 
         let _ = rx.recv_timeout(Duration::from_secs(5)).inspect_err(|err| {
-            debug!(target: "reth::cli", %err, "tokio runtime shutdown timed out");
+            debug!(target: "::cli", %err, "tokio runtime shutdown timed out");
         });
 
         command_res
@@ -192,10 +192,10 @@ where
 
         tokio::select! {
             _ = ctrl_c => {
-                trace!(target: "reth::cli", "Received ctrl-c");
+                trace!(target: "::cli", "Received ctrl-c");
             },
             _ = sigterm => {
-                trace!(target: "reth::cli", "Received SIGTERM");
+                trace!(target: "::cli", "Received SIGTERM");
             },
             res = fut => res?,
         }
@@ -208,7 +208,7 @@ where
 
         tokio::select! {
             _ = ctrl_c => {
-                trace!(target: "reth::cli", "Received ctrl-c");
+                trace!(target: "::cli", "Received ctrl-c");
             },
             res = fut => res?,
         }

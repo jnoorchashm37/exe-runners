@@ -116,6 +116,29 @@ impl TaskSpawner for TokioTaskExecutor {
     }
 }
 
+#[cfg(feature = "reth-tasks")]
+impl reth_tasks::TaskSpawner for TokioTaskExecutor {
+    fn spawn(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        tokio::task::spawn(fut)
+    }
+
+    fn spawn_critical(&self, _name: &'static str, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        tokio::task::spawn(fut)
+    }
+
+    fn spawn_blocking(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        tokio::task::spawn_blocking(move || tokio::runtime::Handle::current().block_on(fut))
+    }
+
+    fn spawn_critical_blocking(
+        &self,
+        _name: &'static str,
+        fut: BoxFuture<'static, ()>,
+    ) -> JoinHandle<()> {
+        tokio::task::spawn_blocking(move || tokio::runtime::Handle::current().block_on(fut))
+    }
+}
+
 /// Many reth components require to spawn tasks for long-running jobs. For example `discovery`
 /// spawns tasks to handle egress and ingress of udp traffic or `network` that spawns session tasks
 /// that handle the traffic to and from a peer.
@@ -529,6 +552,29 @@ impl TaskExecutor {
 }
 
 impl TaskSpawner for TaskExecutor {
+    fn spawn(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        self.spawn(fut)
+    }
+
+    fn spawn_critical(&self, name: &'static str, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        Self::spawn_critical(self, name, fut)
+    }
+
+    fn spawn_blocking(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        self.spawn_blocking(fut)
+    }
+
+    fn spawn_critical_blocking(
+        &self,
+        name: &'static str,
+        fut: BoxFuture<'static, ()>,
+    ) -> JoinHandle<()> {
+        Self::spawn_critical_blocking(self, name, fut)
+    }
+}
+
+#[cfg(feature = "reth-tasks")]
+impl reth_tasks::TaskSpawner for TaskExecutor {
     fn spawn(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
         self.spawn(fut)
     }
