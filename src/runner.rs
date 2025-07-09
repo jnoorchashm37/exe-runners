@@ -164,7 +164,14 @@ where
         let fut = pin!(fut);
         tokio::select! {
             err = tasks => {
-                return Err(err.into())
+                #[cfg(not(feature = "reth-tasks"))]
+                return Err(err.into());
+
+                #[cfg(feature = "reth-tasks")]
+                return match err {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(e.into())
+                }
             },
             res = fut => res?,
         }
