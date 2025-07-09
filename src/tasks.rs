@@ -87,6 +87,29 @@ pub trait TaskSpawner: Send + Sync + Unpin + std::fmt::Debug + DynClone {
     ) -> JoinHandle<()>;
 }
 
+#[cfg(feature = "reth-tasks")]
+impl reth_tasks::TaskSpawner for dyn TaskSpawner {
+    fn spawn(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        TaskSpawner::spawn(&self, fut)
+    }
+
+    fn spawn_critical(&self, name: &'static str, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        TaskSpawner::spawn_critical(&self, name, fut)
+    }
+
+    fn spawn_blocking(&self, fut: BoxFuture<'static, ()>) -> JoinHandle<()> {
+        TaskSpawner::spawn_blocking(&self, fut)
+    }
+
+    fn spawn_critical_blocking(
+        &self,
+        name: &'static str,
+        fut: BoxFuture<'static, ()>,
+    ) -> JoinHandle<()> {
+        TaskSpawner::spawn_critical_blocking(&self, name, fut)
+    }
+}
+
 dyn_clone::clone_trait_object!(TaskSpawner);
 
 /// An [`TaskSpawner`] that uses [`tokio::task::spawn`] to execute tasks
